@@ -15,6 +15,10 @@ export function SelectUbication() {
   const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // State to store latitude and longitude from selected city
+  const [latitude, setLatitude] = useState<number>(0);
+  const [longitude, setLongitude] = useState<number>(0);
+
   // Fetch user location on mount
   useEffect(() => {
     const fetchLocation = async () => {
@@ -39,23 +43,23 @@ export function SelectUbication() {
 
   // Construct the Google Maps URL based on selected or user location
   const mapUrl = selectedCoords
-  ? `https://maps.google.com/maps?width=100%25&height=400&hl=en&q=${selectedCoords[0]},${selectedCoords[1]}&t=&z=15&ie=UTF8&iwloc=B&output=embed`
-  : coords
-  ? `https://maps.google.com/maps?width=100%25&height=400&hl=en&q=${coords[0]},${coords[1]}&t=&z=15&ie=UTF8&iwloc=B&output=embed`
-  : `https://maps.google.com/maps?width=100%25&height=400&hl=en&q=10.01625,-84.21163&t=&z=15&ie=UTF8&iwloc=B&output=embed`; // Default location
+    ? `https://maps.google.com/maps?width=100%25&height=400&hl=en&q=${selectedCoords[0]},${selectedCoords[1]}&t=&z=15&ie=UTF8&iwloc=B&output=embed`
+    : coords
+      ? `https://maps.google.com/maps?width=100%25&height=400&hl=en&q=${coords[0]},${coords[1]}&t=&z=15&ie=UTF8&iwloc=B&output=embed`
+      : `https://maps.google.com/maps?width=100%25&height=400&hl=en&q=10.01625,-84.21163&t=&z=15&ie=UTF8&iwloc=B&output=embed`; // Default location
 
 
   // Handle form submission or location updates
   const handleGetNewLocation = () => {
-    // Update map URL with the selected coordinates
-    if (selectedCoords) {
-      setCoords(selectedCoords); // Update coords with the selected location
-      console.log(`https://maps.google.com/maps?width=100%25&height=400&hl=en&q=${selectedCoords[0]},${selectedCoords[1]}&t=&z=15&ie=UTF8&iwloc=B&output=embed`);
+    setSelectedCoords([latitude, longitude]);
+    if (latitude && longitude) {
+      setCoords([latitude, longitude]); // Update coords with the selected location
     }
   };
 
   const handleUseUserLocation = () => {
-    setSelectedCoords(null); // Reset to user's location
+    console.log(coords[0]);
+    console.log(coords[1]);
     setCoords(userCoords); // Set coords to user's location
   };
 
@@ -90,16 +94,17 @@ export function SelectUbication() {
           stateid={stateid}
           onChange={(e) => {
             // Extract latitude and longitude from the city object if available
-            const latitude = e.latitude  ? parseFloat(e.latitude) : 0;
-            const longitude = e.longitude ? parseFloat(e.longitude) : 0;
-            setSelectedCoords([latitude, longitude]);
+            const lat = e.latitude ? parseFloat(e.latitude) : 0;
+            const lon = e.longitude ? parseFloat(e.longitude) : 0;
+            setLatitude(lat);
+            setLongitude(lon);
           }}
           placeHolder="Select City"
         />
-        <br/>
+        <br />
         <button type="button" onClick={handleGetNewLocation}>Get New Location</button>
       </form>
-      <br/>
+      <br />
       <button type="button" onClick={handleUseUserLocation}>Use User Location</button>
 
       <h2>See location in the map</h2>
