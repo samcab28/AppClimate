@@ -5,7 +5,10 @@ import {
   StateSelect,
 } from "react-country-state-city";
 import "react-country-state-city/dist/react-country-state-city.css";
-import { getUserLocation } from '../utils/GetLocation.ts';
+import { getUserLocation } from '../utils/GetLocation';
+import { ChangeUbication } from '../utils/UrlGenerator';
+import { WeatherData } from './WeatherData';
+import { SelectDataVisualization } from './SelectDataVisualization';
 
 export function SelectUbication() {
   const [countryid, setCountryid] = useState<number>(0);
@@ -14,22 +17,24 @@ export function SelectUbication() {
   const [, setUserCoords] = useState<[number, number] | null>(null);
   const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showWeatherData, setShowWeatherData] = useState<boolean>(false);
 
   // State to store latitude and longitude from selected city
   const [latitude, setLatitude] = useState<number>(0);
   const [longitude, setLongitude] = useState<number>(0);
+  // State to force a re-render of WeatherData
+  const [weatherDataKey] = useState<number>(0);
 
   // Fetch user location on mount
   useEffect(() => {
     const fetchLocation = async () => {
       try {
         const location = await getUserLocation();
-        console.log("user user user: ", location);
         setCoords(location);
         setUserCoords(location); // Save the user's location for later use
+        ChangeUbication(location[1].toString(), location[0].toString());
       } catch (err) {
         setError("Unable to fetch location");
-        console.error(err);
       }
     };
 
@@ -44,20 +49,23 @@ export function SelectUbication() {
 
   // Construct the Google Maps URL based on selected or user location
   const mapUrl = selectedCoords
-  ? `https://maps.google.com/maps?width=100%25&height=400&hl=en&q=${selectedCoords[0]},${selectedCoords[1]}&t=&z=15&ie=UTF8&iwloc=B&output=embed`
-  : coords
-    ? `https://maps.google.com/maps?width=100%25&height=400&hl=en&q=${coords[1]},${coords[0]}&t=&z=15&ie=UTF8&iwloc=B&output=embed`
-    : `https://maps.google.com/maps?width=100%25&height=400&hl=en&q=10.01625,-84.21163&t=&z=15&ie=UTF8&iwloc=B&output=embed`; // Default location
-
-
-
+    ? `https://maps.google.com/maps?width=100%25&height=400&hl=en&q=${selectedCoords[0]},${selectedCoords[1]}&t=&z=15&ie=UTF8&iwloc=B&output=embed`
+    : coords
+      ? `https://maps.google.com/maps?width=100%25&height=400&hl=en&q=${coords[1]},${coords[0]}&t=&z=15&ie=UTF8&iwloc=B&output=embed`
+      : `https://maps.google.com/maps?width=100%25&height=400&hl=en&q=10.01625,-84.21163&t=&z=15&ie=UTF8&iwloc=B&output=embed`; // Default location
 
   // Handle form submission or location updates
   const handleGetNewLocation = () => {
+    setShowWeatherData(true);
     setSelectedCoords([latitude, longitude]);
+    ChangeUbication(latitude.toString(), longitude.toString());
   };
 
   const handleUseUserLocation = () => {
+    setShowWeatherData(true);
+    if (coords) {
+      ChangeUbication(coords[1].toString(), coords[0].toString());
+    }
     setSelectedCoords(null);
   };
 
@@ -116,6 +124,10 @@ export function SelectUbication() {
           <a href="https://www.gps.ie/">gps systems</a>
         </iframe>
       </div>
+
+      <SelectDataVisualization/>
+
+      {showWeatherData ? <WeatherData key={weatherDataKey}/> : <p>Data no seleccionada</p>}
     </div>
   );
 }
