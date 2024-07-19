@@ -9,7 +9,10 @@ declare module 'react-country-state-city' {
   export const CitySelect: FC<{
     countryid: number;
     stateid: number;
-    onChange: (selectedOption: { id: number; name: string }) => void;
+    onChange: (selectedOption: {
+      longitude: string;
+      latitude: string; id: number; name: string 
+}) => void;
     placeHolder: string;
   }>;
 

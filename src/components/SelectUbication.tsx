@@ -11,7 +11,7 @@ export function SelectUbication() {
   const [countryid, setCountryid] = useState<number>(0);
   const [stateid, setStateid] = useState<number>(0);
   const [coords, setCoords] = useState<[number, number] | null>(null);
-  const [userCoords, setUserCoords] = useState<[number, number] | null>(null);
+  const [, setUserCoords] = useState<[number, number] | null>(null);
   const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,6 +24,7 @@ export function SelectUbication() {
     const fetchLocation = async () => {
       try {
         const location = await getUserLocation();
+        console.log("user user user: ", location);
         setCoords(location);
         setUserCoords(location); // Save the user's location for later use
       } catch (err) {
@@ -43,24 +44,21 @@ export function SelectUbication() {
 
   // Construct the Google Maps URL based on selected or user location
   const mapUrl = selectedCoords
-    ? `https://maps.google.com/maps?width=100%25&height=400&hl=en&q=${selectedCoords[0]},${selectedCoords[1]}&t=&z=15&ie=UTF8&iwloc=B&output=embed`
-    : coords
-      ? `https://maps.google.com/maps?width=100%25&height=400&hl=en&q=${coords[0]},${coords[1]}&t=&z=15&ie=UTF8&iwloc=B&output=embed`
-      : `https://maps.google.com/maps?width=100%25&height=400&hl=en&q=10.01625,-84.21163&t=&z=15&ie=UTF8&iwloc=B&output=embed`; // Default location
+  ? `https://maps.google.com/maps?width=100%25&height=400&hl=en&q=${selectedCoords[0]},${selectedCoords[1]}&t=&z=15&ie=UTF8&iwloc=B&output=embed`
+  : coords
+    ? `https://maps.google.com/maps?width=100%25&height=400&hl=en&q=${coords[1]},${coords[0]}&t=&z=15&ie=UTF8&iwloc=B&output=embed`
+    : `https://maps.google.com/maps?width=100%25&height=400&hl=en&q=10.01625,-84.21163&t=&z=15&ie=UTF8&iwloc=B&output=embed`; // Default location
+
+
 
 
   // Handle form submission or location updates
   const handleGetNewLocation = () => {
     setSelectedCoords([latitude, longitude]);
-    if (latitude && longitude) {
-      setCoords([latitude, longitude]); // Update coords with the selected location
-    }
   };
 
   const handleUseUserLocation = () => {
-    console.log(coords[0]);
-    console.log(coords[1]);
-    setCoords(userCoords); // Set coords to user's location
+    setSelectedCoords(null);
   };
 
   return (
